@@ -3,3 +3,4 @@ Pillow==12.3.0
 pypdf==6.20.1
 Werkzeug==3.1.9
 Jinja2==3.1.6
+gunicorn
