@@ -1,0 +1,91 @@
+/* ReportSaathi Custom Styles */
+
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #f8fafc;
+}
+
+/* Gauge Track & Needle */
+.range-gauge-track {
+  position: relative;
+  height: 8px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, 
+    #fef3c7 0%, 
+    #d1fae5 20%, 
+    #10b981 50%, 
+    #d1fae5 80%, 
+    #fee2e2 100%
+  );
+}
+
+.range-gauge-needle {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  transition: left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Badge colors matching deterministic rules */
+.badge-HIGH {
+  background-color: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.badge-LOW {
+  background-color: #fffbeb;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.badge-NORMAL {
+  background-color: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+
+.badge-RANGE_NOT_FOUND {
+  background-color: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}
+
+/* Pulse animation for voice synthesizer */
+@keyframes soundwave {
+  0%, 100% { height: 4px; }
+  50% { height: 16px; }
+}
+
+.speaking-wave span {
+  display: inline-block;
+  width: 3px;
+  background-color: #0d9488;
+  border-radius: 9999px;
+  animation: soundwave 1s infinite ease-in-out;
+}
+.speaking-wave span:nth-child(2) { animation-delay: 0.2s; }
+.speaking-wave span:nth-child(3) { animation-delay: 0.4s; }
+
+/* Custom print formatting for Doctor slip */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #printable-slip, #printable-slip * {
+    visibility: visible;
+  }
+  #printable-slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none;
+    background: white;
+  }
+}

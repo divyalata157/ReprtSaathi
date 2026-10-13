@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ReportSaathi - Rules Decide, AI Explains | Aayu 2026</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981',
+              600: '#059669',
+              700: '#047857',
+              800: '#065f46',
+            },
+            medical: {
+              blue: '#0284c7',
+              teal: '#0d9488',
+              navy: '#0f172a',
+              rose: '#e11d48',
+              amber: '#d97706',
+              emerald: '#059669'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            hindi: ['"Noto Sans Devanagari"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Client-side OCR for direct image scanning -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+  <!-- TOP HACKATHON BADGE HEADER -->
+  <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white text-xs py-2 px-4 border-b border-indigo-800/40">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center space-x-2">
+        <span class="px-2 py-0.5 rounded font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider text-[10px]">
+          Problem T02
+        </span>
+        <span class="font-medium text-slate-200">Aayu 2026 • DevAarambh Hackathon</span>
+        <span class="text-slate-400 hidden sm:inline">|</span>
+        <span class="text-slate-300 hidden sm:inline">Team: <strong class="text-emerald-400">Tech Titans</strong></span>
+      </div>
+      <div class="flex items-center space-x-3 text-[11px]">
+        <button onclick="openPitchModal()" class="flex items-center space-x-1 px-2.5 py-1 rounded bg-indigo-600/60 hover:bg-indigo-600 text-white border border-indigo-500/40 transition">
+          <i data-lucide="presentation" class="w-3.5 h-3.5"></i>
+          <span>Pitch Deck & Architecture</span>
+        </button>
+        <span class="hidden md:inline px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">
+          Deterministic Rules + Plain AI
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN APP NAVBAR -->
+  <header class="bg-white/95 backdrop-blur-md sticky top-0 z-30 border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 py-3 flex items-center justify-between">
+      <!-- Brand Logo -->
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="loadSample('lft_sunita')">
+        <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white shadow-md shadow-emerald-500/20">
+          <i data-lucide="file-heart" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <div class="flex items-center space-x-2">
+            <h1 class="text-2xl font-black tracking-tight text-slate-900">
+              Report<span class="text-teal-600">Saathi</span>
+            </h1>
+            <span class="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">
+              v1.0 MVP
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 font-medium">Rules Decide, AI Explains</p>
+        </div>
+      </div>
+
+      <!-- Center Philosophy Pill (Slide 2) -->
+      <div class="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-xs font-medium text-emerald-800">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Every value explained, nothing diagnosed.</span>
+      </div>
+
+      <!-- Right Controls: Language Switcher & Chat Drawer Trigger -->
+      <div class="flex items-center space-x-3">
+        <!-- Language Switcher -->
+        <div class="inline-flex rounded-lg p-0.5 bg-slate-100 border border-slate-200">
+          <button id="lang-en-btn" onclick="setLanguage('en')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition shadow-xs bg-white text-slate-900 border border-slate-200">
+            English
+          </button>
+          <button id="lang-hi-btn" onclick="setLanguage('hi')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition text-slate-600 hover:text-slate-900">
+            अ हिंदी
+          </button>
+        </div>
+
+        <!-- Chat Assistant Pill -->
+        <button onclick="toggleChatDrawer()" class="flex items-center space-x-2 px-3.5 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white font-medium text-xs shadow-sm transition">
+          <i data-lucide="shield-check" class="w-4 h-4 text-teal-200"></i>
+          <span class="hidden sm:inline" id="nav-chat-btn-text">Safety AI Saathi</span>
+          <span class="sm:hidden">Ask AI</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO & QUICK SAMPLE SELECTOR BANNER -->
+  <section class="bg-gradient-to-b from-teal-50/70 via-slate-50 to-slate-50 border-b border-slate-200/60 pt-6 pb-6 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+        <div>
+          <div class="inline-flex items-center space-x-2 text-xs font-semibold text-teal-700 bg-teal-100/70 px-2.5 py-1 rounded-full mb-2">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+            <span id="hero-badge-text">Hackathon Interactive Demonstration</span>
+          </div>
+          <h2 class="text-xl sm:text-3xl font-extrabold text-slate-900 tracking-tight" id="hero-title">
+            Turning Confusing Lab Reports into Plain-Language Explanations
+          </h2>
+          <p class="text-sm text-slate-600 mt-1 max-w-2xl leading-relaxed" id="hero-desc">
+            No more WhatsApp forward panic. Deterministic code checks each test value against the printed lab range; curated medical plain language explains what it means, with questions ready for your doctor.
+          </p>
+
+          <!-- PROMINENT CUSTOM REPORT ACTION BUTTONS -->
+          <div class="mt-4 flex flex-wrap items-center gap-3">
+            <button onclick="openUploadModal('upload')" class="flex items-center space-x-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs shadow-md shadow-teal-600/20 transition transform active:scale-95">
+              <i data-lucide="upload-cloud" class="w-4 h-4"></i>
+              <span>📤 Check Any Other Report (PDF / Photo)</span>
+            </button>
+            <button onclick="openUploadModal('paste')" class="flex items-center space-x-2 px-3.5 py-2.5 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold text-xs shadow-xs transition">
+              <i data-lucide="clipboard-paste" class="w-4 h-4 text-slate-500"></i>
+              <span>📋 Paste Report Text</span>
+            </button>
+            <button onclick="openUploadModal('manual')" class="flex items-center space-x-2 px-3.5 py-2.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 font-semibold text-xs transition">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-indigo-600"></i>
+              <span>✏️ Add Any Custom Test</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick 1-Click Persona Pre-loaded Datasets for Reference -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm flex flex-col space-y-2 shrink-0">
+          <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+            <span>Pre-loaded Demo Datasets</span>
+            <span class="text-[10px] text-teal-600 font-medium">1-Click Test</span>
+          </span>
+          <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-2">
+            <button onclick="loadSample('lft_sunita')" id="btn-sample-lft" class="sample-btn px-2.5 py-2 rounded-lg text-left border border-teal-500 bg-teal-50/60 text-teal-900 transition hover:bg-teal-100/50">
+              <div class="text-[11px] font-bold flex items-center space-x-1">
+                <span>Sunita in Pali</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              </div>
+              <div class="text-[10px] text-slate-500">LFT (SGPT 68 U/L)</div>
+            </button>
+
+            <button onclick="loadSample('cbc_routine')" id="btn-sample-cbc" class="sample-btn px-2.5 py-2 rounded-lg text-left border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100">
+              <div class="text-[11px] font-bold flex items-center space-x-1">
+                <span>Ramesh Verma</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              </div>
+              <div class="text-[10px] text-slate-500">CBC (Hb 9.8 g/dL)</div>
+            </button>
+
+            <button onclick="loadSample('diabetes_metabolic')" id="btn-sample-diabetes" class="sample-btn px-2.5 py-2 rounded-lg text-left border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100">
+              <div class="text-[11px] font-bold flex items-center space-x-1">
+                <span>Vikram M.</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+              </div>
+              <div class="text-[10px] text-slate-500">HbA1c & Fasting</div>
+            </button>
+
+            <button onclick="loadSample('ocr_edge_case')" id="btn-sample-ocr" class="sample-btn px-2.5 py-2 rounded-lg text-left border border-slate-200 bg-slate-50 text-slate-700 transition hover:bg-slate-100">
+              <div class="text-[11px] font-bold flex items-center space-x-1">
+                <span>Safety Guard</span>
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+              </div>
+              <div class="text-[10px] text-slate-500">Low OCR / No Range</div>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN REPORT VIEWER CONTENT -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full">
+    
+    <!-- PATIENT CONTEXT & REPORT SUMMARY BAR -->
+    <div id="report-meta-card" class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 mb-6 transition">
+      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        
+        <!-- Left: Patient Profile -->
+        <div class="flex items-start space-x-3.5">
+          <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-teal-700 shrink-0">
+            <i data-lucide="user" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center space-x-2">
+              <h3 class="text-lg font-bold text-slate-900" id="meta-patient-name">Sunita Sharma</h3>
+              <span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium" id="meta-patient-age">42 Y / Female</span>
+            </div>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 mt-0.5">
+              <span class="flex items-center space-x-1">
+                <i data-lucide="map-pin" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span id="meta-patient-town">Pali, Rajasthan</span>
+              </span>
+              <span>•</span>
+              <span class="flex items-center space-x-1">
+                <i data-lucide="building" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span id="meta-lab-name">Marwar Clinical Diagnostics</span>
+              </span>
+              <span>•</span>
+              <span class="flex items-center space-x-1">
+                <i data-lucide="calendar" class="w-3.5 h-3.5 text-slate-400"></i>
+                <span id="meta-report-date">12-Oct-2026</span>
+              </span>
+            </div>
+            <p class="text-xs text-slate-600 mt-1.5 italic bg-amber-50/70 text-amber-900 border border-amber-200/60 rounded px-2.5 py-1 inline-block" id="meta-narrative">
+              Patient felt anxious after relatives sent alarming WhatsApp forwards. ReportSaathi decodes tests calmly into Hindi/English.
+            </p>
+          </div>
+        </div>
+
+        <!-- Right: Deterministic Metrics Summary & Action Buttons -->
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Summary Count Badges -->
+          <div class="flex items-center space-x-2">
+            <div class="text-center px-3 py-2 rounded-xl bg-slate-50 border border-slate-200">
+              <div class="text-xs text-slate-500 font-medium" id="lbl-total-tests">Total Tests</div>
+              <div class="text-base font-extrabold text-slate-800" id="metric-total">4</div>
+            </div>
+            <div class="text-center px-3 py-2 rounded-xl bg-emerald-50 border border-emerald-200">
+              <div class="text-xs text-emerald-700 font-medium" id="lbl-normal-tests">In Range</div>
+              <div class="text-base font-extrabold text-emerald-700" id="metric-normal">2</div>
+            </div>
+            <div class="text-center px-3 py-2 rounded-xl bg-rose-50 border border-rose-200">
+              <div class="text-xs text-rose-700 font-medium" id="lbl-out-tests">To Discuss</div>
+              <div class="text-base font-extrabold text-rose-700" id="metric-out">2</div>
+            </div>
+          </div>
+
+          <!-- Actions: Readout Audio & Print Slip -->
+          <div class="flex items-center space-x-2">
+            <button onclick="readFullReportAudio()" id="btn-full-audio" class="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 text-xs font-semibold transition">
+              <i data-lucide="volume-2" class="w-4 h-4"></i>
+              <span id="btn-audio-text">Listen Audio</span>
+            </button>
+            <button onclick="openDoctorSlipModal()" class="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold transition shadow-xs">
+              <i data-lucide="printer" class="w-4 h-4"></i>
+              <span id="btn-print-text">Doctor Slip</span>
+            </button>
+            <button onclick="openOCRModal()" class="flex items-center space-x-1.5 px-3 py-2 rounded-xl bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold transition">
+              <i data-lucide="scan-line" class="w-4 h-4 text-slate-500"></i>
+              <span>OCR Pipeline</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- OCR CONFIDENCE OR VERIFICATION WARNING BANNER (Slide 3 & 4: Low OCR confidence -> Verify) -->
+    <div id="verification-banner" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-500 p-4 rounded-r-xl shadow-xs">
+      <div class="flex items-start space-x-3">
+        <i data-lucide="alert-triangle" class="w-5 h-5 text-amber-600 mt-0.5 shrink-0"></i>
+        <div class="text-xs text-amber-900">
+          <span class="font-bold">Safety Check: Low OCR Confidence / Missing Range Detected!</span>
+          <p class="mt-0.5 text-amber-800">
+            One or more rows had low optical recognition clarity or missing reference ranges. In line with medical safety guidelines, no status has been guessed. Please verify with your physical report.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARAMETER CARDS GRID (Matches Slide 2 sample card layout!) -->
+    <div class="mb-4 flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <h3 class="text-base font-bold text-slate-900" id="section-cards-title">
+          Decoded Parameter Cards
+        </h3>
+        <span class="text-xs text-slate-500">(LOINC Aligned)</span>
+      </div>
+      <div class="text-xs text-slate-500 flex items-center space-x-2">
+        <span class="inline-flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> <span>Normal</span></span>
+        <span class="inline-flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> <span>High</span></span>
+        <span class="inline-flex items-center space-x-1"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> <span>Low</span></span>
+      </div>
+    </div>
+
+    <!-- CARDS CONTAINER (Populated dynamically) -->
+    <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <!-- Loading Skeleton Placeholder -->
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 animate-pulse">
+        <div class="h-6 bg-slate-200 rounded w-1/3 mb-4"></div>
+        <div class="h-4 bg-slate-100 rounded w-1/2 mb-6"></div>
+        <div class="h-16 bg-slate-100 rounded-xl mb-4"></div>
+        <div class="h-20 bg-slate-100 rounded-xl"></div>
+      </div>
+      <div class="bg-white rounded-2xl p-5 border border-slate-200 animate-pulse">
+        <div class="h-6 bg-slate-200 rounded w-1/3 mb-4"></div>
+        <div class="h-4 bg-slate-100 rounded w-1/2 mb-6"></div>
+        <div class="h-16 bg-slate-100 rounded-xl mb-4"></div>
+        <div class="h-20 bg-slate-100 rounded-xl"></div>
+      </div>
+    </div>
+
+    <!-- FOOTER SUMMARY & CALL TO ACTION (Slide 5: Patient Value) -->
+    <div class="mt-8 bg-gradient-to-r from-teal-500 to-emerald-600 rounded-2xl p-6 text-white shadow-md flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="space-y-1">
+        <div class="flex items-center space-x-2 text-teal-100 text-xs font-semibold tracking-wider uppercase">
+          <i data-lucide="check-circle-2" class="w-4 h-4 text-white"></i>
+          <span>Patient Care Journey</span>
+        </div>
+        <h4 class="text-lg font-bold">Understand the Report → Prepare Questions → Discuss with Clinician</h4>
+        <p class="text-xs text-teal-50 max-w-xl">
+          ReportSaathi empowers patients to arrive at their consultation calm and prepared, saving time and avoiding panic.
+        </p>
+      </div>
+      <div class="flex items-center space-x-3 shrink-0">
+        <button onclick="openDoctorSlipModal()" class="px-4 py-2.5 rounded-xl bg-white text-emerald-800 font-bold text-xs shadow-md hover:bg-slate-50 transition">
+          Generate Doctor Questions Sheet
+        </button>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-6 px-4 mt-8 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div class="flex items-center space-x-2 font-medium">
+        <span>ReportSaathi</span>
+        <span>•</span>
+        <span>Built by <strong class="text-slate-700">Team Tech Titans</strong> for Aayu 2026</span>
+      </div>
+      <div class="flex items-center space-x-4 text-slate-400">
+        <span>MedlinePlus NIH Aligned</span>
+        <span>•</span>
+        <span>LOINC Standard</span>
+        <span>•</span>
+        <span>WHO AI Ethics Guardrail</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== MODALS & DRAWERS ==================== -->
+
+  <!-- 1. AI MEDICAL SAFETY CHAT DRAWER (Slide 4: AI Drifting Guardrail) -->
+  <div id="chat-drawer" class="fixed inset-y-0 right-0 w-full sm:w-96 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out flex flex-col border-l border-slate-200">
+    <!-- Drawer Header -->
+    <div class="p-4 bg-slate-900 text-white flex items-center justify-between">
+      <div class="flex items-center space-x-2.5">
+        <div class="w-8 h-8 rounded-lg bg-teal-500/20 border border-teal-400/40 flex items-center justify-center text-teal-300">
+          <i data-lucide="shield-alert" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold flex items-center space-x-1.5">
+            <span>Safety AI Saathi</span>
+            <span class="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/30 text-emerald-300 font-semibold uppercase">Guardrail Active</span>
+          </h4>
+          <p class="text-[10px] text-slate-400">Explains terminology • Refuses diagnoses</p>
+        </div>
+      </div>
+      <button onclick="toggleChatDrawer()" class="text-slate-400 hover:text-white p-1 rounded-lg">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Safety Banner in Drawer -->
+    <div class="p-3 bg-amber-50 border-b border-amber-200 text-[11px] text-amber-900 flex items-start space-x-2">
+      <i data-lucide="info" class="w-4 h-4 text-amber-600 mt-0.5 shrink-0"></i>
+      <span>
+        <strong>WHO Medical Safety Standard:</strong> This AI will refuse requests for diagnosis or prescriptions and guide you to ask your physician.
+      </span>
+    </div>
+
+    <!-- Chat Messages Scrollable -->
+    <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3.5 text-xs">
+      <!-- Default AI Welcome -->
+      <div class="flex items-start space-x-2.5">
+        <div class="w-7 h-7 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center shrink-0 font-bold text-xs">
+          RS
+        </div>
+        <div class="bg-slate-100 text-slate-800 p-3 rounded-2xl rounded-tl-none border border-slate-200 max-w-[85%] leading-relaxed">
+          <p id="chat-welcome-msg">
+            नमस्ते! I am your ReportSaathi assistant. I can explain what medical abbreviations mean, why tests are done, or how to prepare questions for your doctor.
+          </p>
+          <div class="mt-2 pt-2 border-t border-slate-200 text-[10px] text-slate-500 italic">
+            Try clicking the test queries below to test the safety refusal guard in action:
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Predefined Prompt Chips for Quick Hackathon Demo -->
+    <div class="p-2.5 bg-slate-50 border-t border-slate-200">
+      <span class="text-[10px] uppercase font-bold text-slate-400 block mb-1.5">Try Hackathon Triggers:</span>
+      <div class="flex flex-wrap gap-1.5">
+        <button onclick="sendQuickPrompt('Kya mujhe liver disease hai?')" class="text-[10px] px-2 py-1 rounded bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition">
+          ⚠️ "Kya mujhe liver disease hai?" (Triggers Refusal)
+        </button>
+        <button onclick="sendQuickPrompt('What does SGPT (ALT) measure?')" class="text-[10px] px-2 py-1 rounded bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
+          📘 "What does SGPT measure?"
+        </button>
+        <button onclick="sendQuickPrompt('Which medicine should I take for high sugar?')" class="text-[10px] px-2 py-1 rounded bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+          💊 "Which medicine should I take?" (Triggers Refusal)
+        </button>
+      </div>
+    </div>
+
+    <!-- Chat Input Box -->
+    <div class="p-3 bg-white border-t border-slate-200 flex items-center space-x-2">
+      <input id="chat-input" type="text" placeholder="Ask about a test or medical term..." onkeydown="if(event.key==='Enter') sendChatMessage()" class="flex-1 text-xs px-3 py-2 rounded-xl border border-slate-300 focus:outline-none focus:ring-2 focus:ring-teal-500">
+      <button onclick="sendChatMessage()" class="p-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white transition">
+        <i data-lucide="send" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. OCR & IMAGE PREPROCESSING SIMULATOR MODAL (Slide 3 & 4) -->
+  <div id="ocr-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+            <i data-lucide="scan" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-slate-900">OCR & Document Preprocessing Pipeline</h3>
+            <p class="text-xs text-slate-500">Slide 3 & 4: Pillow Cleanup, OpenCV Deskew, Tesseract/PaddleOCR Table Extraction</p>
+          </div>
+        </div>
+        <button onclick="closeOCRModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4">
+        <!-- Visual Pipeline Steps -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="w-5 h-5 rounded-full bg-teal-600 text-white font-bold inline-flex items-center justify-center text-[10px] mb-1">1</span>
+            <div class="font-bold text-slate-800">Upload & Deskew</div>
+            <div class="text-[10px] text-slate-500">OpenCV - 0.4° Tilt</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="w-5 h-5 rounded-full bg-teal-600 text-white font-bold inline-flex items-center justify-center text-[10px] mb-1">2</span>
+            <div class="font-bold text-slate-800">Binarization</div>
+            <div class="text-[10px] text-slate-500">Contrast Cleanup</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="w-5 h-5 rounded-full bg-teal-600 text-white font-bold inline-flex items-center justify-center text-[10px] mb-1">3</span>
+            <div class="font-bold text-slate-800">Row Segmenter</div>
+            <div class="text-[10px] text-slate-500">Cell Bounding Box</div>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+            <span class="w-5 h-5 rounded-full bg-teal-600 text-white font-bold inline-flex items-center justify-center text-[10px] mb-1">4</span>
+            <div class="font-bold text-slate-800">Alias Linking</div>
+            <div class="text-[10px] text-slate-500">SGPT = ALT (LOINC)</div>
+          </div>
+        </div>
+
+        <!-- Extracted Raw Table View -->
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Extracted Table with Confidence Scores</h4>
+          <div class="overflow-x-auto rounded-xl border border-slate-200">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-50 text-slate-600 border-b border-slate-200">
+                <tr>
+                  <th class="p-2.5">Detected Parameter</th>
+                  <th class="p-2.5">Read Value</th>
+                  <th class="p-2.5">Printed Range</th>
+                  <th class="p-2.5">OCR Confidence</th>
+                  <th class="p-2.5">Action</th>
+                </tr>
+              </thead>
+              <tbody id="ocr-table-body" class="divide-y divide-slate-100">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Safety check footnote -->
+        <div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 flex items-center space-x-2">
+          <i data-lucide="check-shield" class="w-4 h-4 text-blue-700 shrink-0"></i>
+          <span>Any confidence &lt; 75% or unprinted reference range is deterministicly flagged for patient confirmation.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DOCTOR CONSULTATION SLIP MODAL (Slide 5: Sunita walks in with questions) -->
+  <div id="doctor-slip-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl border border-slate-200 max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Doctor Consultation Companion Slip</h3>
+          <p class="text-xs text-slate-500">Print or save as PDF to carry to the clinic</p>
+        </div>
+        <button onclick="closeDoctorSlipModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Printable area -->
+      <div id="printable-slip" class="mt-4 p-5 rounded-xl border-2 border-dashed border-slate-300 bg-slate-50/50 text-xs space-y-4">
+        <!-- Clinic Slip Header -->
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div>
+            <h4 class="font-extrabold text-sm text-slate-900">ReportSaathi • Doctor Consultation Companion</h4>
+            <p class="text-[11px] text-slate-500">Prepared for: <span id="slip-patient-name" class="font-bold text-slate-800">Sunita Sharma</span> (<span id="slip-patient-town">Pali, Rajasthan</span>)</p>
+          </div>
+          <div class="text-right">
+            <span class="text-[10px] text-slate-400">Date: <span id="slip-date">12-Oct-2026</span></span>
+          </div>
+        </div>
+
+        <!-- Flagged parameters summary -->
+        <div>
+          <h5 class="font-bold text-slate-800 mb-1.5 flex items-center space-x-1">
+            <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+            <span>Parameters to Discuss with Doctor:</span>
+          </h5>
+          <div id="slip-abnormal-list" class="space-y-1.5 bg-white p-2.5 rounded-lg border border-slate-200">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Curated Doctor Questions Checklist -->
+        <div>
+          <h5 class="font-bold text-slate-800 mb-1.5 flex items-center space-x-1">
+            <i data-lucide="help-circle" class="w-3.5 h-3.5 text-teal-600"></i>
+            <span>Questions for the Clinician:</span>
+          </h5>
+          <div id="slip-questions-list" class="space-y-2">
+            <!-- Populated dynamically -->
+          </div>
+        </div>
+
+        <!-- Doctor's notes section -->
+        <div class="pt-2 border-t border-slate-200">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Doctor's Clinical Notes / Advice:</p>
+          <div class="h-16 border border-slate-300 rounded-lg bg-white"></div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="mt-4 flex items-center justify-end space-x-2">
+        <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs flex items-center space-x-1.5">
+          <i data-lucide="printer" class="w-4 h-4"></i>
+          <span>Print / Save PDF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. PITCH DECK & ARCHITECTURE MODAL (Slides 1 to 6) -->
+  <div id="pitch-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-6 shadow-2xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-[10px] font-bold tracking-wider text-teal-600 uppercase bg-teal-50 px-2 py-0.5 rounded">Tech Titans Presentation Deck</span>
+          <h3 class="text-lg font-bold text-slate-900 mt-0.5">ReportSaathi: Architectural Overview</h3>
+        </div>
+        <button onclick="closePitchModal()" class="text-slate-400 hover:text-slate-600">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="mt-4 space-y-4 text-xs text-slate-700">
+        <!-- 6 Step Pipeline (Slide 3) -->
+        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <h4 class="font-bold text-slate-900 mb-2 flex items-center space-x-1.5">
+            <span class="w-2 h-2 rounded-full bg-teal-600"></span>
+            <span>Slide 3: Technical Implementation Pipeline</span>
+          </h4>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-[11px]">
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>1. Upload:</strong> Photo or PDF of lab report</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>2. Prepare:</strong> Pillow cleanup, PyMuPDF</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>3. Extract:</strong> OCR test names, values, ranges</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>4. Rules Engine:</strong> Python deterministic compare</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>5. Explain:</strong> Curated MedlinePlus dictionary</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200"><strong>6. Accessible:</strong> Hindi/English TTS audio readout</div>
+          </div>
+        </div>
+
+        <!-- Innovation & Feasibility (Slide 2 & 4) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-emerald-50/70 border border-emerald-200">
+            <h5 class="font-bold text-emerald-950 mb-1">Key Innovation: Rules First, AI Second</h5>
+            <p class="text-[11px] text-emerald-900 leading-relaxed">
+              Status (HIGH, NORMAL, LOW) comes from strict deterministic code comparing value with printed range. The AI never guesses numbers and strictly explains concepts.
+            </p>
+          </div>
+          <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-200">
+            <h5 class="font-bold text-rose-950 mb-1">Safety Guard: No Autonomous Diagnosis</h5>
+            <p class="text-[11px] text-rose-900 leading-relaxed">
+              Fixed prompts, output checker, and WHO-aligned refusal guard send diagnostic questions back to qualified doctors.
+            </p>
+          </div>
+        </div>
+
+        <!-- Social Impact (Slide 5) -->
+        <div class="p-3 rounded-xl bg-indigo-50/70 border border-indigo-200">
+          <h5 class="font-bold text-indigo-950 mb-1">Target Impact: Sunita in Pali</h5>
+          <p class="text-[11px] text-indigo-900 leading-relaxed">
+            Replaces sleepless nights of panic and terrifying WhatsApp forwards with calm, localized explanations in Hindi and English, especially for families far from tertiary medical centers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. UNIVERSAL REPORT UPLOADER & INSPECTOR MODAL -->
+  <div id="upload-modal" class="fixed inset-0 bg-slate-900/70 backdrop-blur-xs z-50 hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="bg-white rounded-3xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-slate-200 max-h-[92vh] flex flex-col">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-teal-600 bg-teal-50 px-2 py-0.5 rounded tracking-wider">Universal Analyzer</span>
+          <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">Check Any Lab Report (अन्य रिपोर्ट्स जांचें)</h3>
+        </div>
+        <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Input Tabs -->
+      <div class="flex border-b border-slate-200 mt-3 text-xs">
+        <button id="tab-btn-upload" onclick="switchUploadTab('upload')" class="px-4 py-2 font-bold border-b-2 border-teal-600 text-teal-700 flex items-center space-x-1.5 transition">
+          <i data-lucide="file-up" class="w-3.5 h-3.5"></i>
+          <span>1. Upload PDF / Photo</span>
+        </button>
+        <button id="tab-btn-paste" onclick="switchUploadTab('paste')" class="px-4 py-2 font-medium text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 transition">
+          <i data-lucide="clipboard-type" class="w-3.5 h-3.5"></i>
+          <span>2. Paste Report Text</span>
+        </button>
+        <button id="tab-btn-manual" onclick="switchUploadTab('manual')" class="px-4 py-2 font-medium text-slate-500 hover:text-slate-800 flex items-center space-x-1.5 transition">
+          <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+          <span>3. Manual Test Builder</span>
+        </button>
+      </div>
+
+      <!-- Tab Contents Area -->
+      <div class="flex-1 overflow-y-auto py-3 space-y-4 text-xs">
+        
+        <!-- Patient Metadata Fields -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          <div>
+            <label class="text-[10px] text-slate-500 font-bold block">Patient Name</label>
+            <input id="custom-meta-name" type="text" value="Rajesh Gupta" class="w-full text-xs p-1.5 bg-white border border-slate-300 rounded font-semibold text-slate-800">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 font-bold block">Age / Gender</label>
+            <input id="custom-meta-age" type="text" value="38 Y / Male" class="w-full text-xs p-1.5 bg-white border border-slate-300 rounded text-slate-800">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 font-bold block">Town / City</label>
+            <input id="custom-meta-town" type="text" value="Jaipur, Rajasthan" class="w-full text-xs p-1.5 bg-white border border-slate-300 rounded text-slate-800">
+          </div>
+          <div>
+            <label class="text-[10px] text-slate-500 font-bold block">Lab Name</label>
+            <input id="custom-meta-lab" type="text" value="City Diagnostic Center" class="w-full text-xs p-1.5 bg-white border border-slate-300 rounded text-slate-800">
+          </div>
+        </div>
+
+        <!-- TAB 1: FILE UPLOAD DROPZONE -->
+        <div id="tab-pane-upload" class="space-y-3">
+          <div id="drop-area" class="border-2 border-dashed border-teal-300 rounded-2xl p-6 text-center bg-teal-50/30 hover:bg-teal-50/70 transition cursor-pointer" onclick="document.getElementById('file-input').click()">
+            <i data-lucide="upload-cloud" class="w-10 h-10 text-teal-600 mx-auto mb-2"></i>
+            <p class="font-bold text-slate-800 text-sm">Drop any Lab Report (PDF / Image) here</p>
+            <p class="text-[11px] text-slate-500 mt-1">Supports PDF e-reports, phone photos, or lab scans</p>
+            <input type="file" id="file-input" class="hidden" accept="image/*,application/pdf" onchange="handleUniversalFileUpload(event)">
+            <button type="button" class="mt-3 px-4 py-1.5 rounded-lg bg-teal-600 text-white font-semibold text-xs shadow-xs hover:bg-teal-700 transition">
+              Select File from Device
+            </button>
+          </div>
+          <div id="upload-status" class="hidden p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-900 flex items-center space-x-2">
+            <span class="w-3 h-3 rounded-full bg-indigo-600 animate-ping"></span>
+            <span id="upload-status-text" class="font-medium">Extracting test parameters from document...</span>
+          </div>
+        </div>
+
+        <!-- TAB 2: PASTE RAW TEXT -->
+        <div id="tab-pane-paste" class="hidden space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label class="font-bold text-slate-700">Paste Lab Report Text:</label>
+              <span class="text-[10px] text-slate-500">From SMS, hospital portal, or PDF copy</span>
+            </div>
+            <textarea id="paste-text-area" rows="4" placeholder="e.g.&#10;Serum Creatinine 1.4 mg/dL 0.6 - 1.2&#10;Serum Uric Acid 7.8 mg/dL 3.5 - 7.2&#10;Blood Urea 48 mg/dL 15 - 45" class="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-mono"></textarea>
+          </div>
+          
+          <!-- Quick Paste Templates -->
+          <div>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Or Click to Load Sample Report Data:</span>
+            <div class="flex flex-wrap gap-1.5">
+              <button onclick="loadTemplateText('kft')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 text-[11px] transition">
+                + Kidney Function (Creatinine, Uric Acid, Urea)
+              </button>
+              <button onclick="loadTemplateText('thyroid')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 text-[11px] transition">
+                + Thyroid Panel (TSH, Free T3, Free T4)
+              </button>
+              <button onclick="loadTemplateText('lipid')" class="px-2.5 py-1 rounded bg-slate-100 hover:bg-teal-50 hover:text-teal-700 border border-slate-200 text-[11px] transition">
+                + Lipid Profile (Cholesterol, Triglycerides, HDL, LDL)
+              </button>
+            </div>
+          </div>
+
+          <button onclick="parsePastedReportText()" class="w-full py-2 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-bold transition flex items-center justify-center space-x-1.5">
+            <i data-lucide="scan-text" class="w-4 h-4"></i>
+            <span>Extract Parameters from Text</span>
+          </button>
+        </div>
+
+        <!-- TAB 3: MANUAL QUICK BUILDER CHIPS -->
+        <div id="tab-pane-manual" class="space-y-2">
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">1-Click Quick Add Common Lab Tests:</span>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="quickAddTest('Serum Creatinine', 1.4, 'mg/dL', '0.6 to 1.2')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + Creatinine (1.4)
+            </button>
+            <button onclick="quickAddTest('Serum Uric Acid', 7.9, 'mg/dL', '3.5 to 7.2')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + Uric Acid (7.9)
+            </button>
+            <button onclick="quickAddTest('TSH', 5.8, 'uIU/mL', '0.4 to 4.2')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + TSH (5.8)
+            </button>
+            <button onclick="quickAddTest('Vitamin B12', 145, 'pg/mL', '200 to 900')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + Vit B12 (145)
+            </button>
+            <button onclick="quickAddTest('Total Cholesterol', 235, 'mg/dL', '< 200')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + Cholesterol (235)
+            </button>
+            <button onclick="quickAddTest('Triglycerides', 210, 'mg/dL', '< 150')" class="px-2 py-1 rounded bg-slate-100 hover:bg-teal-100 text-slate-700 text-[11px] border border-slate-200 transition">
+              + Triglycerides (210)
+            </button>
+          </div>
+        </div>
+
+        <!-- REVIEW & EDITABLE PARAMETERS TABLE -->
+        <div class="pt-2 border-t border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="font-bold text-slate-800 flex items-center space-x-1.5">
+              <span>Parameters to Decode:</span>
+              <span id="custom-test-count" class="px-1.5 py-0.5 rounded-full bg-teal-100 text-teal-800 text-[10px] font-bold">1</span>
+            </h4>
+            <button onclick="addNewBlankRow()" class="text-[11px] text-teal-700 font-bold hover:underline flex items-center space-x-1">
+              <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+              <span>Add Another Test Row</span>
+            </button>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-slate-200 max-h-56">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 sticky top-0">
+                <tr>
+                  <th class="p-2">Test Name</th>
+                  <th class="p-2 w-24">Value</th>
+                  <th class="p-2 w-20">Unit</th>
+                  <th class="p-2 w-32">Lab Range</th>
+                  <th class="p-2 w-10 text-center"></th>
+                </tr>
+              </thead>
+              <tbody id="custom-rows-tbody" class="divide-y divide-slate-100 bg-white">
+                <!-- Dynamically populated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="pt-3 border-t border-slate-200 flex items-center justify-between">
+        <span class="text-[11px] text-slate-500 italic">Rules Decide, AI Explains • No autonomous diagnosis</span>
+        <div class="flex items-center space-x-2">
+          <button onclick="closeUploadModal()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold transition">
+            Cancel
+          </button>
+          <button onclick="executeDecodeCustomReport()" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold shadow-md transition flex items-center space-x-1.5">
+            <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+            <span>Decode This Report (रिपोर्ट डीकोड करें)</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- APPLICATION SCRIPTS -->
+  <script src="/static/js/main.js"></script>
+</body>
+</html>
